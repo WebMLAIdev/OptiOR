@@ -210,7 +210,10 @@ def predict():
             'day_of_week': pd.to_datetime(data['date']).dayofweek
         }])
         
+        # Get the prediction result
         prediction = model.predict(input_data)[0]
+        predicted_val = round(prediction, 1) # Store in variable
+
         
         # Save using the imported Model
         new_case = SurgeryCase(
@@ -218,7 +221,8 @@ def predict():
             service=data['service'],
             booked_time=float(data['booked_time']),
             patient_name=data['patient_name'],
-            actual_duration=None,
+            or_suite=data['or_suite'],
+            actual_duration=predicted_val,
             is_prediction=True
         )
         db.session.add(new_case)
