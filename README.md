@@ -124,15 +124,3 @@ This backend becomes the foundation for:
 * Forecasting daily OR demand
 * Optimizing schedules
 * Reducing delays and overtime
-
----
-
-## 📌 Future Add-Ons (Easy to Extend)
-
-* Streamlit dashboards
-* ML Ops pipelines
-* Case overrun prediction
-* OR demand forecasting
-* Docker containerization
-* Authentication & role-based access
-
