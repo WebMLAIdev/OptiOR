@@ -1,126 +1,107 @@
-# **OptiOR – Operating Room Utilization Helper**
+# OptiOR - Operating Room Analytics & Prediction
 
-OptiOR is a small project that helps hospitals understand how their Operating Rooms (ORs) are being used.
-You upload OR case data, the system stores it in a clean format, and then you can use it for dashboards, analysis, or even machine learning later.
+OptiOR is a web-based application designed to help hospitals analyze operating room (OR) utilization and predict surgery durations. It provides an interactive dashboard for visualizing historical data and a machine learning tool to estimate future case times.
 
-Think of it as the “data backbone” for OR optimization.
-
----
-
-## 🌟 What OptiOR Does
-
-* Reads OR utilization data from CSV files
-* Sends each record to a FastAPI backend
-* Stores everything in a database using SQLAlchemy
-* Lets you retrieve the data through simple API calls
-* Designed so you can easily add analytics or ML later
-
-It’s lightweight, clean, and easy to extend.
+The application consists of a Flask backend that serves data and a Streamlit frontend that provides a user-friendly interface for interaction.
 
 ---
 
-## 📁 Project Layout
+## Features
+
+- **Interactive Dashboard**: View daily OR schedules, case distribution by surgical specialty, and average surgery durations.
+- **Surgery Duration Prediction**: Uses a machine learning model (Random Forest Regressor) to predict the duration of a new surgery based on its characteristics.
+- **On-Demand Model Retraining**: Trigger a retraining of the ML model on the latest data directly from the UI.
+- **Automated Data Seeding**: Initializes the database from a sample CSV file.
+- **RESTful API**: A clean backend API to manage data and predictions.
+
+---
+
+## Project Layout
 
 ```
 OptiOR/
-├── data/                  # CSV input files
-├── database/              # DB setup + ORM models
+├── data/                  # CSV input files for seeding
+│   └── 2022_Q1_OR_Utilization.csv
+├── database/              # DB configuration and SQLAlchemy schema
 │   ├── config.py
-│   └── schema.py
-├── models/                # Future ML models
-├── notebooks/             # EDA and experiments
-├── client.py              # CSV upload script
-├── server.py              # FastAPI backend
-├── requirements.txt
+│   ├── schema.py
+│   └── or_database.db     # SQLite database file
+├── models/                # Stores the trained machine learning model
+│   └── OptiOR.joblib
+├── notebooks/             # Jupyter notebooks for analysis
+├── client.py              # Streamlit frontend application
+├── server.py              # Flask backend server
+├── requirements.txt       # Project dependencies
 └── README.md
 ```
 
 ---
 
-## 🚀 Running OptiOR
+## Running OptiOR
 
-### 1️⃣ Install dependencies
+Follow these steps to get the application running locally.
 
+### 1. Install Dependencies
 
+First, install the required Python packages from `requirements.txt`:
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 2️⃣ Start the backend
+### 2. Start the Backend Server
+
+The backend is a Flask application. Run the following command in your terminal:
 
 ```bash
-uvicorn server:app --reload
+python server.py
 ```
 
-Your API will be available at:
+The backend API will be available at `http://127.0.0.1:5000`.
 
-```
-http://localhost:8000
-```
+### 3. Seed the Database (One-Time Step)
 
-### 3️⃣ Upload your CSV data
+Before using the application for the first time, you must populate the database with the sample data. The server must be running.
 
-Just run:
+Open a **new terminal** and run the following `curl` command to send a request to the seeding endpoint:
 
 ```bash
-python client.py
+curl -X POST http://127.0.0.1:5000/api/seed
 ```
 
-The script will:
+This will load the data from `data/2022_Q1_OR_Utilization.csv` into the database and train the initial machine learning model. You should see a success message in the response.
 
-* Read the CSV file in `/data`
-* Clean and format the fields
-* Send each row to the `/surgery-case/` API
+### 4. Start the Frontend Application
 
-Once the upload is done, your data is safely stored in the database.
+With the backend still running, open a **third terminal** and start the Streamlit frontend:
+
+```bash
+streamlit run client.py
+```
+
+Your web application will open in your browser, and you can access it at:
+
+```
+http://localhost:8501
+```
 
 ---
 
-## 🧱 What’s Stored in the Database?
+## How to Use the Application
 
-Each OR surgery case becomes a record with:
-
-* Date
-* OR room name
-* Surgeon
-* Procedure
-* Times, durations
-* Specialty
-* Case status
-* And many other operational fields
-
-This makes the data ready for dashboards, EDA, and forecasting models.
+- **Dashboard**: Open the application to view the main dashboard. Use the date picker to explore the OR schedule for different days.
+- **Predict Duration**: Navigate to the "Predict Duration" page from the sidebar to get an estimated surgery time.
+- **Retrain Model**: Use the "Retrain Model" button in the sidebar to update the prediction model with the latest data from the database.
 
 ---
 
-## 🔎 Checking Your Data
+## API Endpoints
 
-You can pull all cases with:
+The Flask server provides the following API endpoints:
 
-```
-GET /surgery-cases/
-```
-
-Or visit the autogenerated docs:
-
-```
-http://localhost:8000/docs
-```
-
-FastAPI gives you a clean UI to test everything.
-
----
-
-## 💡 Why This Project Exists
-
-Hospitals often struggle with OR under-utilization, delays, or scheduling inefficiencies.
-Before you can optimize anything, you need **clean, reliable, structured data**.
-
-That’s exactly what OptiOR provides.
-
-This backend becomes the foundation for:
-
-* OR utilization dashboards
-* Predicting case duration
-* Forecasting daily OR demand
-* Optimizing schedules
-* Reducing delays and overtime
+- `POST /api/seed`: Seeds the database from the CSV file.
+- `DELETE /api/clear`: Clears all records from the database.
+- `GET /api/schedule`: Retrieves scheduled cases for a specified date.
+- `GET /api/analytics`: Provides aggregate data for dashboard charts.
+- `POST /api/predict`: Predicts surgery duration for a new case.
+- `POST /api/retrain`: Retrains the machine learning model.
