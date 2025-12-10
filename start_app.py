@@ -3,6 +3,7 @@ import time
 import os
 import sys
 import platform
+import signal
 
 def kill_process_tree(pid):
     """Kills a process tree (including children) robustly on Windows/Unix."""
